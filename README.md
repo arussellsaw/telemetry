@@ -14,6 +14,13 @@ import(
 func main() {
     var telemetry = new(telemetry.Telemetry)
     telemetry.Initialize()
+
+    /*
+    The time.Duration() parameter is used to cull metrics older than the duration
+    this provides the ability to provide x per-minute stats, cull is run on append
+    methods, also a scheduled cull is run every 5s (configureable in future)
+    */
+
     telemetry.CreateAvg("example.avg", (60 * time.Second))
     telemetry.CreateCounter("example.counter", (60 * time.Second))
 
