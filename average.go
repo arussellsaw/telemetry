@@ -35,8 +35,8 @@ func (a *Average) Get(name string) string {
 //GetAll return all average metrics
 func (a *Average) GetAll() string {
 	var output string
-	var avg float32
 	for key, value := range a.metric {
+		var avg float32
 		if len(value.points) > 0 {
 			for i := range value.points {
 				avg = avg + value.points[i].value

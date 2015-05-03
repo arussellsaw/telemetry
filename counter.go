@@ -35,8 +35,8 @@ func (c *Counter) Get(name string) string {
 //GetAll return all counters
 func (c *Counter) GetAll() string {
 	var output string
-	var sum float32
 	for key, value := range c.metric {
+		var sum float32
 		if len(value.points) > 0 {
 			for i := range value.points {
 				sum = sum + value.points[i].value
