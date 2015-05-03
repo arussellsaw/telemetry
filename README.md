@@ -13,7 +13,7 @@ import(
 
 func main() {
     var telemetry = new(telemetry.Telemetry)
-    telemetry.Initialize()
+    telemetry.New()
 
     /*
     The time.Duration() parameter is used to cull metrics older than the duration

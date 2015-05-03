@@ -30,8 +30,8 @@ type point struct {
 	timestamp time.Time
 }
 
-//Initialize metric reporting
-func (t *Telemetry) Initialize() error {
+//New init metric reporting
+func (t *Telemetry) New() error {
 	counter := new(Counter)
 	counterMetric := make(map[string]metric)
 	counter.metric = counterMetric
