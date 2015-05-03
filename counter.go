@@ -1,22 +1,28 @@
 package telemetry
 
 import (
+	"sync"
 	"time"
 )
 
 //Counter metric type for total over a time.Duration
 type Counter struct {
 	metric map[string]metric
+	lock   sync.Mutex
 }
 
 //New create new counter metric
 func (c *Counter) New(name string, duration time.Duration) {
+	c.lock.Lock()
+	defer c.lock.Unlock()
 	counter := metric{duration: duration}
 	c.metric[name] = counter
 }
 
 //Add add value to counter
 func (c *Counter) Add(name string, value float32) {
+	c.lock.Lock()
+	defer c.lock.Unlock()
 	point := point{value: value, timestamp: time.Now()}
 	//this ugly section is because we cannot assign to properties of a
 	//struct within a map, so have to create the entire struct again

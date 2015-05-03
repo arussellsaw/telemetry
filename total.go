@@ -1,21 +1,27 @@
 package telemetry
 
 import (
+	"sync"
 	"time"
 )
 
 //Total a total sum of a metric over the lifetime of the process
 type Total struct {
 	metric map[string]float32
+	lock   sync.Mutex
 }
 
 //New new total sum metric
 func (t *Total) New(name string, _ time.Duration) {
+	t.lock.Lock()
+	defer t.lock.Unlock()
 	t.metric[name] = 0
 }
 
 //Add add value to existing metric
 func (t *Total) Add(name string, value float32) {
+	t.lock.Lock()
+	defer t.lock.Unlock()
 	t.metric[name] = (t.metric[name] + value)
 }
 

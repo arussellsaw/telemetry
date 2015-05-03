@@ -1,22 +1,28 @@
 package telemetry
 
 import (
+	"sync"
 	"time"
 )
 
 //Average running average over a time.Duration
 type Average struct {
 	metric map[string]metric
+	lock   sync.Mutex
 }
 
 //New create new averaged metric
 func (a *Average) New(name string, duration time.Duration) {
+	a.lock.Lock()
+	defer a.lock.Unlock()
 	average := metric{duration: duration}
 	a.metric[name] = average
 }
 
 //Add add value to averaged metric
 func (a *Average) Add(name string, value float32) {
+	a.lock.Lock()
+	defer a.lock.Unlock()
 	point := point{value: value, timestamp: time.Now()}
 	//this ugly section is because we cannot assign to properties of a
 	//struct within a map, so have to create the entire struct again
