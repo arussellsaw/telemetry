@@ -31,31 +31,32 @@ type point struct {
 }
 
 //New init metric reporting
-func (t *Telemetry) New() error {
+func New() *Telemetry {
+	var constructed Telemetry
 	counter := new(Counter)
 	counterMetric := make(map[string]metric)
 	counter.metric = counterMetric
-	t.Counter = counter
+	constructed.Counter = counter
 
 	average := new(Average)
 	averageMetric := make(map[string]metric)
 	average.metric = averageMetric
-	t.Average = average
+	constructed.Average = average
 
 	total := new(Total)
 	totalMetric := make(map[string]float32)
 	total.metric = totalMetric
-	t.Total = total
+	constructed.Total = total
 
-	t.httpMetrics.metrics = map[string]metricInterface{
+	constructed.httpMetrics.metrics = map[string]metricInterface{
 		"averages": average,
 		"counters": counter,
 		"totals":   total,
 	}
 
-	go http.ListenAndServe(":9000", t.httpMetrics)
-	go t.cullScheduler()
-	return nil
+	go http.ListenAndServe(":9000", constructed.httpMetrics)
+	go constructed.cullScheduler()
+	return &constructed
 }
 
 func (t *Telemetry) cullScheduler() {
