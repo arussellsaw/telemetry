@@ -1,7 +1,6 @@
 package telemetry
 
 import (
-	"fmt"
 	"time"
 )
 
@@ -33,8 +32,8 @@ func (c *Counter) Get(name string) string {
 }
 
 //GetAll return all counters
-func (c *Counter) GetAll() string {
-	var output string
+func (c *Counter) GetAll() map[string]float32 {
+	output := make(map[string]float32)
 	for key, value := range c.metric {
 		var sum float32
 		if len(value.points) > 0 {
@@ -42,7 +41,7 @@ func (c *Counter) GetAll() string {
 				sum = sum + value.points[i].value
 			}
 		}
-		output += fmt.Sprintf("%s %v \n", key, sum)
+		output[key] = sum
 	}
 	return output
 }

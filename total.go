@@ -1,7 +1,6 @@
 package telemetry
 
 import (
-	"fmt"
 	"time"
 )
 
@@ -26,10 +25,10 @@ func (t *Total) Get(name string) string {
 }
 
 //GetAll get all totals
-func (t *Total) GetAll() string {
-	var output string
+func (t *Total) GetAll() map[string]float32 {
+	output := make(map[string]float32)
 	for key, value := range t.metric {
-		output += fmt.Sprintf("%s %v \n", key, value)
+		output[key] = value
 	}
 	return output
 }

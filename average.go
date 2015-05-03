@@ -1,7 +1,6 @@
 package telemetry
 
 import (
-	"fmt"
 	"time"
 )
 
@@ -33,8 +32,8 @@ func (a *Average) Get(name string) string {
 }
 
 //GetAll return all average metrics
-func (a *Average) GetAll() string {
-	var output string
+func (a *Average) GetAll() map[string]float32 {
+	output := make(map[string]float32)
 	for key, value := range a.metric {
 		var avg float32
 		if len(value.points) > 0 {
@@ -43,7 +42,7 @@ func (a *Average) GetAll() string {
 			}
 			avg = avg / float32(len(value.points))
 		}
-		output += fmt.Sprintf("%s %v \n", key, avg)
+		output[key] = avg
 	}
 	return output
 }

@@ -17,7 +17,7 @@ type metricInterface interface {
 	New(string, time.Duration)
 	Add(string, float32)
 	Get(string) string
-	GetAll() string
+	GetAll() map[string]float32
 }
 
 type metric struct {
@@ -48,9 +48,9 @@ func (t *Telemetry) Initialize() error {
 	t.Total = total
 
 	t.httpMetrics.metrics = map[string]metricInterface{
-		"average": average,
-		"counter": counter,
-		"totals":  total,
+		"averages": average,
+		"counters": counter,
+		"totals":   total,
 	}
 
 	go http.ListenAndServe(":9000", t.httpMetrics)
