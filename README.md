@@ -50,15 +50,31 @@ output:
 
 
 ```
-example.avg 20
-example.counter 60
-example.total 60
+{
+    "averages" {
+        example.avg 20
+    },
+    "counters" {
+        example.counter 60
+    },
+    "totals" {
+        example.total 60
+    }
+}
 ```
 
 the same command 61s later
 
 ```
-example.avg 0
-example.counter 0
-example.total 60
+{
+    "averages" {
+        example.avg 0
+    },
+    "counters" {
+        example.counter 0
+    },
+    "totals" {
+        example.total 60
+    }
+}
 ```
