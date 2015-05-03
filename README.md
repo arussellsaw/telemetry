@@ -21,16 +21,22 @@ func main() {
     methods, also a scheduled cull is run every 5s (configureable in future)
     */
 
-    telemetry.CreateAvg("example.avg", (60 * time.Second))
-    telemetry.CreateCounter("example.counter", (60 * time.Second))
+    telemetry.Average.New("example.avg", (60 * time.Second))
+    telemetry.Counter.New("example.counter", (60 * time.Second))
+    telemetry.Total.New("example.total", 0 * time.Second) //duration parameter is useless, but is needed to conform to interface
 
-    telemetry.AppendAvg("example.avg", float32(10))
-    telemetry.AppendAvg("example.avg", float32(20))
-    telemetry.AppendAvg("example.avg", float32(30))
 
-    telemetry.AppendCounter("example.counter", float32(10))
-    telemetry.AppendCounter("example.counter", float32(20))
-    telemetry.AppendCounter("example.counter", float32(30))
+    telemetry.Average.Add("example.avg", float32(10))
+    telemetry.Average.Add("example.avg", float32(20))
+    telemetry.Average.Add("example.avg", float32(30))
+
+    telemetry.Counter.Add("example.counter", float32(10))
+    telemetry.Counter.Add("example.counter", float32(20))
+    telemetry.Counter.Add("example.counter", float32(30))
+
+    telemetry.Total.Add("example.total", float32(10))
+    telemetry.Total.Add("example.total", float32(20))
+    telemetry.Total.Add("example.total", float32(30))
 }
 
 ```
@@ -46,4 +52,13 @@ output:
 ```
 example.avg 20
 example.counter 60
+example.total 60
+```
+
+the same command 61s later
+
+```
+example.avg 0
+example.counter 0
+example.total 60
 ```
