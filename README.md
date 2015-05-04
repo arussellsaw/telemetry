@@ -15,7 +15,8 @@ import(
     )
 
 func main() {
-    var telemetry = Telemetry.New()
+    // Create new Telemetry listener on port 9000, with a 5 second point cull schedule
+    var telemetry = Telemetry.New(":9000", (5 * time.Second))
 
     /*
     The time.Duration() parameter is used to cull metrics older than the duration
