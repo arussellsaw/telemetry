@@ -1,6 +1,7 @@
 package telemetry
 
 import (
+	"fmt"
 	"sync"
 	"time"
 )
@@ -27,7 +28,7 @@ func (t *Total) Add(name string, value float32) {
 
 //Get return total
 func (t *Total) Get(name string) string {
-	return ""
+	return fmt.Sprintf("%s %v", name, t.metric[name])
 }
 
 //GetAll get all totals

@@ -31,7 +31,7 @@ type point struct {
 }
 
 //New init metric reporting
-func New() *Telemetry {
+func New(listen string, cullSchedule time.Duration) *Telemetry {
 	var constructed Telemetry
 	counter := new(Counter)
 	counterMetric := make(map[string]metric)
@@ -54,12 +54,12 @@ func New() *Telemetry {
 		"totals":   total,
 	}
 
-	go http.ListenAndServe(":9000", constructed.httpMetrics)
-	go constructed.cullScheduler()
+	go http.ListenAndServe(listen, constructed.httpMetrics)
+	go constructed.cullScheduler(cullSchedule)
 	return &constructed
 }
 
-func (t *Telemetry) cullScheduler() {
+func (t *Telemetry) cullScheduler(schedule time.Duration) {
 	for {
 		for key := range t.Average.metric {
 			points := cull(t.Average.metric[key].points, t.Average.metric[key].duration)
@@ -69,7 +69,7 @@ func (t *Telemetry) cullScheduler() {
 			points := cull(t.Counter.metric[key].points, t.Counter.metric[key].duration)
 			t.Counter.metric[key] = metric{points, t.Counter.metric[key].duration}
 		}
-		time.Sleep(time.Second * 5)
+		time.Sleep(schedule)
 	}
 }
 
