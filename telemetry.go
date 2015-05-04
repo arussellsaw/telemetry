@@ -11,6 +11,7 @@ type Telemetry struct {
 	Counter     *Counter
 	Average     *Average
 	Total       *Total
+	Current     *Current
 }
 
 type metricInterface interface {
@@ -48,10 +49,16 @@ func New(listen string, cullSchedule time.Duration) *Telemetry {
 	total.metric = totalMetric
 	constructed.Total = total
 
+	current := new(Current)
+	currentMetric := make(map[string]float32)
+	current.metric = currentMetric
+	constructed.Current = current
+
 	constructed.httpMetrics.metrics = map[string]metricInterface{
 		"averages": average,
 		"counters": counter,
 		"totals":   total,
+		"currents": current,
 	}
 
 	go http.ListenAndServe(listen, constructed.httpMetrics)
