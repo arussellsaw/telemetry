@@ -1,5 +1,8 @@
 # telemetry
+
 metric reporting for Go applications
+
+build status: 
 
 sample usage:
 
