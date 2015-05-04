@@ -6,7 +6,7 @@ metric reporting for Go applications
 
 sample usage:
 
-```
+```go
 package main
 
 import(
