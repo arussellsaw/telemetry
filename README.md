@@ -2,7 +2,7 @@
 
 metric reporting for Go applications
 
-build status: 
+![build-status](https://travis-ci.org/arussellsaw/telemetry.svg?branch=master)
 
 sample usage:
 
