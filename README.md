@@ -1,6 +1,7 @@
 # telemetry
 
 [![build-status](https://travis-ci.org/arussellsaw/telemetry.svg?branch=master)](https://travis-ci.org/arussellsaw/telemetry) [![code-coverage](http://gocover.io/_badge/github.com/arussellsaw/telemetry)](http://gocover.io/github.com/arussellsaw/telemetry)
+[![go-doc](https://godoc.org/github.com/arussellsaw/telemetry?status.svg)](https://godoc.org/github.com/arussellsaw/telemetry)
 
 metric reporting for Go applications
 
