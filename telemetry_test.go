@@ -107,3 +107,36 @@ func TestTotalGetAll(t *testing.T) {
 	}
 	assert.Equal(t, expected, tel.Total.GetAll())
 }
+
+//Currents
+
+func TestCurrentlNew(t *testing.T) {
+	tel := telemetry.New(":9000", (5 * time.Second))
+	tel.Current.New("test.current", (60 * time.Second))
+	assert.Equal(t, "test.current 0", tel.Current.Get("test.current"))
+}
+
+func TestCurrentAdd(t *testing.T) {
+	tel := telemetry.New(":9000", (5 * time.Second))
+	tel.Current.New("test.current", (60 * time.Second))
+	tel.Current.Add("test.current", 10)
+	tel.Current.Add("test.current", 20)
+	assert.Equal(t, "test.current 20", tel.Current.Get("test.current"))
+}
+
+func TestCurrentGetAll(t *testing.T) {
+	tel := telemetry.New(":9000", (5 * time.Second))
+	tel.Current.New("test.current", (60 * time.Second))
+	tel.Current.Add("test.current", 10)
+	tel.Current.Add("test.current", 20)
+
+	tel.Current.New("test.current2", (60 * time.Second))
+	tel.Current.Add("test.current2", 20)
+	tel.Current.Add("test.current2", 10)
+
+	var expected = map[string]float32{
+		"test.current":  20,
+		"test.current2": 10,
+	}
+	assert.Equal(t, expected, tel.Current.GetAll())
+}
