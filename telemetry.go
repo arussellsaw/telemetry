@@ -7,14 +7,14 @@ import (
 
 //Telemetry struct
 type Telemetry struct {
-	httpMetrics httpMetrics
-	Counter     *Counter
-	Average     *Average
-	Total       *Total
-	Current     *Current
+	Counter *Counter
+	Average *Average
+	Total   *Total
+	Current *Current
 }
 
-type metricInterface interface {
+//MetricInterface any type of metric
+type MetricInterface interface {
 	New(string, time.Duration)
 	Add(string, float32)
 	Get(string) string
@@ -32,7 +32,7 @@ type point struct {
 }
 
 //New init metric reporting
-func New(listen string, cullSchedule time.Duration) *Telemetry {
+func New(cullSchedule time.Duration) (*Telemetry, http.Handler) {
 	var constructed Telemetry
 	counter := new(Counter)
 	counterMetric := make(map[string]metric)
@@ -53,17 +53,16 @@ func New(listen string, cullSchedule time.Duration) *Telemetry {
 	currentMetric := make(map[string]float32)
 	current.metric = currentMetric
 	constructed.Current = current
-
-	constructed.httpMetrics.metrics = map[string]metricInterface{
-		"averages": average,
-		"counters": counter,
-		"totals":   total,
-		"currents": current,
+	handler := HTTPMetrics{
+		Metrics: map[string]MetricInterface{
+			"averages": average,
+			"counters": counter,
+			"totals":   total,
+			"currents": current,
+		},
 	}
-
-	go http.ListenAndServe(listen, constructed.httpMetrics)
 	go constructed.cullScheduler(cullSchedule)
-	return &constructed
+	return &constructed, &handler
 }
 
 func (t *Telemetry) cullScheduler(schedule time.Duration) {

@@ -1,6 +1,8 @@
 package telemetry_test
 
 import (
+	"net/http"
+	"net/http/httptest"
 	"testing"
 	"time"
 
@@ -8,27 +10,47 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestNew(t *testing.T) {
-	_ = telemetry.New(":9000", (5 * time.Second))
+func TestHTTP(t *testing.T) {
+	expected := `{
+  "averages": {},
+  "counters": {},
+  "currents": {},
+  "totals": {}
+}`
+	handler := telemetry.HTTPMetrics{
+		Metrics: map[string]telemetry.MetricInterface{
+			"averages": &telemetry.Average{},
+			"counters": &telemetry.Counter{},
+			"totals":   &telemetry.Total{},
+			"currents": &telemetry.Current{},
+		},
+	}
+	recorder := httptest.NewRecorder()
+	req, err := http.NewRequest("GET", "http://127.0.0.1/", nil)
+	assert.Nil(t, err)
+
+	handler.ServeHTTP(recorder, req)
+
+	assert.Equal(t, expected, recorder.Body.String())
 }
 
 //Counters
 
 func TestCounterNew(t *testing.T) {
-	tel := telemetry.New(":9000", (5 * time.Second))
+	tel, _ := telemetry.New((5 * time.Second))
 	tel.Counter.New("test.counter", (60 * time.Second))
 	assert.Equal(t, "test.counter 0", tel.Counter.Get("test.counter"))
 }
 
 func TestCounterAdd(t *testing.T) {
-	tel := telemetry.New(":9000", (5 * time.Second))
+	tel, _ := telemetry.New((5 * time.Second))
 	tel.Counter.New("test.counter", (60 * time.Second))
 	tel.Counter.Add("test.counter", 10)
 	assert.Equal(t, "test.counter 10", tel.Counter.Get("test.counter"))
 }
 
 func TestCounterGetAll(t *testing.T) {
-	tel := telemetry.New(":9000", (5 * time.Second))
+	tel, _ := telemetry.New((5 * time.Second))
 	tel.Counter.New("test.counter", (60 * time.Second))
 	tel.Counter.New("test.counter2", (60 * time.Second))
 	tel.Counter.Add("test.counter", 10)
@@ -43,13 +65,13 @@ func TestCounterGetAll(t *testing.T) {
 //Averages
 
 func TestAverageNew(t *testing.T) {
-	tel := telemetry.New(":9000", (5 * time.Second))
+	tel, _ := telemetry.New((5 * time.Second))
 	tel.Average.New("test.average", (60 * time.Second))
 	assert.Equal(t, "test.average 0", tel.Average.Get("test.average"))
 }
 
 func TestAverageAdd(t *testing.T) {
-	tel := telemetry.New(":9000", (5 * time.Second))
+	tel, _ := telemetry.New((5 * time.Second))
 	tel.Average.New("test.average", (60 * time.Second))
 	tel.Average.Add("test.average", 10)
 	tel.Average.Add("test.average", 20)
@@ -58,7 +80,7 @@ func TestAverageAdd(t *testing.T) {
 }
 
 func TestAverageGetAll(t *testing.T) {
-	tel := telemetry.New(":9000", (5 * time.Second))
+	tel, _ := telemetry.New((5 * time.Second))
 	tel.Average.New("test.average", (60 * time.Second))
 	tel.Average.Add("test.average", 10)
 	tel.Average.Add("test.average", 20)
@@ -77,13 +99,13 @@ func TestAverageGetAll(t *testing.T) {
 //Totals
 
 func TestTotalNew(t *testing.T) {
-	tel := telemetry.New(":9000", (5 * time.Second))
+	tel, _ := telemetry.New((5 * time.Second))
 	tel.Total.New("test.total", (60 * time.Second))
 	assert.Equal(t, "test.total 0", tel.Total.Get("test.total"))
 }
 
 func TestTotalAdd(t *testing.T) {
-	tel := telemetry.New(":9000", (5 * time.Second))
+	tel, _ := telemetry.New((5 * time.Second))
 	tel.Total.New("test.total", (60 * time.Second))
 	tel.Total.Add("test.total", 10)
 	tel.Total.Add("test.total", 20)
@@ -92,7 +114,7 @@ func TestTotalAdd(t *testing.T) {
 }
 
 func TestTotalGetAll(t *testing.T) {
-	tel := telemetry.New(":9000", (5 * time.Second))
+	tel, _ := telemetry.New((5 * time.Second))
 	tel.Total.New("test.total", (60 * time.Second))
 	tel.Total.Add("test.total", 10)
 	tel.Total.Add("test.total", 20)
@@ -111,13 +133,13 @@ func TestTotalGetAll(t *testing.T) {
 //Currents
 
 func TestCurrentlNew(t *testing.T) {
-	tel := telemetry.New(":9000", (5 * time.Second))
+	tel, _ := telemetry.New((5 * time.Second))
 	tel.Current.New("test.current", (60 * time.Second))
 	assert.Equal(t, "test.current 0", tel.Current.Get("test.current"))
 }
 
 func TestCurrentAdd(t *testing.T) {
-	tel := telemetry.New(":9000", (5 * time.Second))
+	tel, _ := telemetry.New((5 * time.Second))
 	tel.Current.New("test.current", (60 * time.Second))
 	tel.Current.Add("test.current", 10)
 	tel.Current.Add("test.current", 20)
@@ -125,7 +147,7 @@ func TestCurrentAdd(t *testing.T) {
 }
 
 func TestCurrentGetAll(t *testing.T) {
-	tel := telemetry.New(":9000", (5 * time.Second))
+	tel, _ := telemetry.New((5 * time.Second))
 	tel.Current.New("test.current", (60 * time.Second))
 	tel.Current.Add("test.current", 10)
 	tel.Current.Add("test.current", 20)

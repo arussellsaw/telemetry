@@ -5,13 +5,15 @@ import (
 	"net/http"
 )
 
-type httpMetrics struct {
-	metrics map[string]metricInterface
+//HTTPMetrics request handler for metrics
+type HTTPMetrics struct {
+	Metrics map[string]MetricInterface
 }
 
-func (h httpMetrics) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+//MetricsHandler
+func (h HTTPMetrics) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	container := make(map[string]map[string]float32)
-	for key, metric := range h.metrics {
+	for key, metric := range h.Metrics {
 		container[key] = metric.GetAll()
 	}
 	output, err := json.MarshalIndent(container, "", "  ")

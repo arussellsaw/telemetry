@@ -16,8 +16,8 @@ import(
 
 func main() {
     // Create new Telemetry listener on port 9000, with a 5 second point cull schedule
-    var telemetry = Telemetry.New(":9000", (5 * time.Second))
-
+    var telemetry, handler = Telemetry.New((5 * time.Second))
+    http.HandleFunc("/telemetry", handler.ServeHTTP)
     /*
     The time.Duration() parameter is used to cull metrics older than the duration
     this provides the ability to provide x per-minute stats, cull is run on append
