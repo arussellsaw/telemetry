@@ -34,25 +34,27 @@ type point struct {
 //New init metric reporting
 func New(cullSchedule time.Duration) (*Telemetry, http.Handler) {
 	var constructed Telemetry
-	counter := new(Counter)
-	counterMetric := make(map[string]metric)
-	counter.metric = counterMetric
+
+	counter := &Counter{
+		metric: make(map[string]metric),
+	}
 	constructed.Counter = counter
 
-	average := new(Average)
-	averageMetric := make(map[string]metric)
-	average.metric = averageMetric
+	average := &Average{
+		metric: make(map[string]metric),
+	}
 	constructed.Average = average
 
-	total := new(Total)
-	totalMetric := make(map[string]float32)
-	total.metric = totalMetric
+	total := &Total{
+		metric: make(map[string]float32),
+	}
 	constructed.Total = total
 
-	current := new(Current)
-	currentMetric := make(map[string]float32)
-	current.metric = currentMetric
+	current := &Current{
+		metric: make(map[string]float32),
+	}
 	constructed.Current = current
+
 	handler := HTTPMetrics{
 		Metrics: map[string]MetricInterface{
 			"averages": average,

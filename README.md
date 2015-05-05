@@ -15,7 +15,7 @@ import(
     )
 
 func main() {
-    // Create new Telemetry listener on port 9000, with a 5 second point cull schedule
+    // Initialize telemetry, return http.Handler for metrics, with a 5 second point cull schedule
     var telemetry, handler = Telemetry.New((5 * time.Second))
     http.HandleFunc("/telemetry", handler.ServeHTTP)
     /*
