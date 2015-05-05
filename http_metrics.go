@@ -16,10 +16,6 @@ func (h HTTPMetrics) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	for key, metric := range h.Metrics {
 		container[key] = metric.GetAll()
 	}
-	output, err := json.MarshalIndent(container, "", "  ")
-	if err != nil {
-		w.Write([]byte("failed to encode JSON"))
-		return
-	}
+	output, _ := json.MarshalIndent(container, "", "  ")
 	w.Write(output)
 }
