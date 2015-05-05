@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-//Telemetry struct
+//Telemetry - Parent struct for all metrics
 type Telemetry struct {
 	Counter *Counter
 	Average *Average
@@ -13,7 +13,7 @@ type Telemetry struct {
 	Current *Current
 }
 
-//MetricInterface any type of metric
+//MetricInterface - Any type of metric
 type MetricInterface interface {
 	New(string, time.Duration)
 	Add(string, float32)
@@ -31,7 +31,7 @@ type point struct {
 	timestamp time.Time
 }
 
-//New init metric reporting
+//New - Initialize Telemetry, return Telemetry struct, and HTTPMetrics handler
 func New(cullSchedule time.Duration) (*Telemetry, http.Handler) {
 	var constructed Telemetry
 

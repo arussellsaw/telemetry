@@ -6,13 +6,13 @@ import (
 	"time"
 )
 
-//Average running average over a time.Duration
+//Average - A running average of values provided to it, over a time period
 type Average struct {
 	metric map[string]metric
 	lock   sync.Mutex
 }
 
-//New create new averaged metric
+//New - Create new Average metric with a duration for averaging points over
 func (a *Average) New(name string, duration time.Duration) {
 	a.lock.Lock()
 	defer a.lock.Unlock()
@@ -20,7 +20,7 @@ func (a *Average) New(name string, duration time.Duration) {
 	a.metric[name] = average
 }
 
-//Add add value to averaged metric
+//Add - Add a value to the metric
 func (a *Average) Add(name string, value float32) {
 	a.lock.Lock()
 	defer a.lock.Unlock()
@@ -33,7 +33,7 @@ func (a *Average) Add(name string, value float32) {
 	a.metric[name] = points
 }
 
-//Get return average metric
+//Get - Fetch the metric, performing the average (mean)
 func (a *Average) Get(name string) string {
 	var avg float32
 	for i := range a.metric[name].points {
@@ -45,7 +45,7 @@ func (a *Average) Get(name string) string {
 	return fmt.Sprintf("%s %v", name, avg)
 }
 
-//GetAll return all average metrics
+//GetAll - Get results of all Average metrics
 func (a *Average) GetAll() map[string]float32 {
 	output := make(map[string]float32)
 	for key, value := range a.metric {

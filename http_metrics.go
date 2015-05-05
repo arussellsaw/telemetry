@@ -5,12 +5,12 @@ import (
 	"net/http"
 )
 
-//HTTPMetrics request handler for metrics
+// HTTPMetrics http.Handler for telemetry data
 type HTTPMetrics struct {
 	Metrics map[string]MetricInterface
 }
 
-//MetricsHandler
+//MetricsHandler returns JSON encoded output of application metrics
 func (h HTTPMetrics) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	container := make(map[string]map[string]float32)
 	for key, metric := range h.Metrics {

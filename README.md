@@ -47,7 +47,7 @@ func main() {
 
 to view metrics:
 
-`curl localhost:9000`  
+`curl http://localhost/telemetry`  
 
 
 output:  
