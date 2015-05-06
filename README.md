@@ -13,6 +13,7 @@ package main
 import(
     "github.com/arussellsaw/telemetry"
     "time"
+    "net/http"
     )
 
 func main() {
