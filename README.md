@@ -12,6 +12,7 @@ package main
 
 import(
     "github.com/arussellsaw/telemetry"
+    "github.com/arussellsaw/telemetry/builtin"
     "time"
     "net/http"
     )
@@ -25,6 +26,7 @@ func main() {
     this provides the ability to provide x per-minute stats, cull is run on append
     methods, also a scheduled cull is run every 5s (configureable in future)
     */
+    var runtimeMetrics = builtin.Runtime{telemetry, "example"}
 
     telemetry.Average.New("example.avg", (60 * time.Second))
     telemetry.Counter.New("example.counter", (60 * time.Second))
@@ -57,13 +59,18 @@ output:
 ```
 {
     "averages" {
-        example.avg 20
+        "example.avg": 20,
+        "example.runtime.mem.heap.alloc": 107192,
+        "example.runtime.mem.heap.used": 393216
     },
     "counters" {
-        example.counter 60
+        "example.counter": 60
     },
+    "currents": {
+        "example.runtime.gc.count": 4
+    }
     "totals" {
-        example.total 60
+        "example.total": 60
     }
 }
 ```
@@ -73,13 +80,18 @@ the same command 61s later
 ```
 {
     "averages" {
-        example.avg 0
+        "example.avg": 0,
+        "example.runtime.mem.heap.alloc": 107192,
+        "example.runtime.mem.heap.used": 393216
     },
     "counters" {
-        example.counter 0
+        "example.counter": 0
     },
+    "currents": {
+        "example.runtime.gc.count": 4
+    }
     "totals" {
-        example.total 60
+        "example.total": 60
     }
 }
 ```
