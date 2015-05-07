@@ -37,22 +37,14 @@ func (a *Average) Add(name string, value float32) {
 //Get - Fetch the metric, performing the average (mean)
 func (a *Average) Get(name string) string {
 	var avg float32
-	var min = a.metric[name].points[0].value
-	var max float32
 
 	for i := range a.metric[name].points {
 		avg = avg + a.metric[name].points[i].value
-		if a.metric[name].points[i].value < min {
-			min = a.metric[name].points[i].value
-		}
-		if a.metric[name].points[i].value > max {
-			max = a.metric[name].points[i].value
-		}
 	}
 	if avg != 0 {
 		avg = avg / float32(len(a.metric[name].points))
 	}
-	return fmt.Sprintf("%s %v:%v:%v", name, min, max, avg)
+	return fmt.Sprintf("%s %v", name, avg)
 }
 
 //GetAll - Get results of all Average metrics
