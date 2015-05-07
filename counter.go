@@ -13,11 +13,12 @@ type Counter struct {
 }
 
 //New create new counter metric
-func (c *Counter) New(name string, duration time.Duration) {
+func (c *Counter) New(name string, duration time.Duration) error {
 	c.lock.Lock()
 	defer c.lock.Unlock()
 	counter := metric{duration: duration}
 	c.metric[name] = counter
+	return nil
 }
 
 //Add add value to counter

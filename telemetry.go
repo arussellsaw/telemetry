@@ -15,7 +15,7 @@ type Telemetry struct {
 
 //MetricInterface - Any type of metric
 type MetricInterface interface {
-	New(string, time.Duration)
+	New(string, time.Duration) error
 	Add(string, float32)
 	Get(string) string
 	GetAll() map[string]float32

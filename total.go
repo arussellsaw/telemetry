@@ -13,10 +13,11 @@ type Total struct {
 }
 
 //New new total sum metric
-func (t *Total) New(name string, _ time.Duration) {
+func (t *Total) New(name string, _ time.Duration) error {
 	t.lock.Lock()
 	defer t.lock.Unlock()
 	t.metric[name] = 0
+	return nil
 }
 
 //Add add value to existing metric

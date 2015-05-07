@@ -13,10 +13,11 @@ type Current struct {
 }
 
 //New new current metric
-func (c *Current) New(name string, _ time.Duration) {
+func (c *Current) New(name string, _ time.Duration) error {
 	c.lock.Lock()
 	defer c.lock.Unlock()
 	c.metric[name] = 0
+	return nil
 }
 
 //Add add value to existing metric

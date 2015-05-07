@@ -13,11 +13,12 @@ type Average struct {
 }
 
 //New - Create new Average metric with a duration for averaging points over
-func (a *Average) New(name string, duration time.Duration) {
+func (a *Average) New(name string, duration time.Duration) error {
 	a.lock.Lock()
 	defer a.lock.Unlock()
 	average := metric{duration: duration}
 	a.metric[name] = average
+	return nil
 }
 
 //Add - Add a value to the metric
@@ -36,18 +37,28 @@ func (a *Average) Add(name string, value float32) {
 //Get - Fetch the metric, performing the average (mean)
 func (a *Average) Get(name string) string {
 	var avg float32
+	var min = a.metric[name].points[0].value
+	var max float32
+
 	for i := range a.metric[name].points {
 		avg = avg + a.metric[name].points[i].value
+		if a.metric[name].points[i].value < min {
+			min = a.metric[name].points[i].value
+		}
+		if a.metric[name].points[i].value > max {
+			max = a.metric[name].points[i].value
+		}
 	}
 	if avg != 0 {
 		avg = avg / float32(len(a.metric[name].points))
 	}
-	return fmt.Sprintf("%s %v", name, avg)
+	return fmt.Sprintf("%s %v:%v:%v", name, min, max, avg)
 }
 
 //GetAll - Get results of all Average metrics
 func (a *Average) GetAll() map[string]float32 {
 	output := make(map[string]float32)
+
 	for key, value := range a.metric {
 		var avg float32
 		if len(value.points) > 0 {
