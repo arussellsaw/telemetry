@@ -1,6 +1,7 @@
 package telemetry
 
 import (
+	"sync"
 	"time"
 )
 
@@ -10,6 +11,7 @@ type Counter struct {
 	value    float64
 	points   map[time.Time]float64
 	duration time.Duration
+	lock     sync.Mutex
 }
 
 //NewCounter - Create new Counter metric with a duration for keeping points
@@ -20,13 +22,19 @@ func NewCounter(tel *Telemetry, name string, duration time.Duration) Counter {
 		points:   make(map[time.Time]float64),
 		duration: duration,
 	}
+	tel.lock.Lock()
+	defer tel.lock.Unlock()
 	tel.registry[name] = &count
 	return count
 }
 
 //Add - Add a value to the metric
 func (c *Counter) Add(tel *Telemetry, value float64) error {
+	tel.lock.Lock()
+	c.lock.Lock()
 	tel.registry[c.Name].(*Counter).points[time.Now()] = value
+	tel.lock.Unlock()
+	c.lock.Unlock()
 	c.Maintain()
 	return nil
 }
@@ -44,6 +52,8 @@ func (c *Counter) GetName() string {
 
 //Maintain - maintain metric value
 func (c *Counter) Maintain() {
+	c.lock.Lock()
+	defer c.lock.Unlock()
 	points := make(map[time.Time]float64)
 	for pointTime, point := range c.points {
 		if time.Since(pointTime) < c.duration {

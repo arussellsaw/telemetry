@@ -1,12 +1,14 @@
 package telemetry
 
 import (
+	"sync"
 	"time"
 )
 
 //Telemetry container struct
 type Telemetry struct {
 	registry map[string]metricInterface
+	lock     sync.Mutex
 	duration time.Duration
 }
 
