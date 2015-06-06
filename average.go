@@ -27,11 +27,13 @@ func NewAverage(tel *Telemetry, name string, duration time.Duration) Average {
 //Add - Add a value to the metric
 func (a *Average) Add(tel *Telemetry, value float64) error {
 	tel.registry[a.Name].(*Average).points[time.Now()] = value
+	a.Maintain()
 	return nil
 }
 
 //Get - Fetch the metric, performing the average (mean)
 func (a *Average) Get(tel *Telemetry) float64 {
+	a.Maintain()
 	return tel.registry[a.Name].(*Average).value
 }
 
@@ -49,10 +51,14 @@ func (a *Average) Maintain() {
 		}
 	}
 	a.points = points
-	var avg float64
-	for _, point := range a.points {
-		avg = avg + point
+	if len(a.points) > 0 {
+		var avg float64
+		for _, point := range a.points {
+			avg = avg + point
+		}
+		avg = avg / float64(len(a.points))
+		a.value = avg
+	} else {
+		a.value = 0
 	}
-	avg = avg / float64(len(a.points))
-	a.value = avg
 }

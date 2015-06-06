@@ -27,11 +27,13 @@ func NewCounter(tel *Telemetry, name string, duration time.Duration) Counter {
 //Add - Add a value to the metric
 func (c *Counter) Add(tel *Telemetry, value float64) error {
 	tel.registry[c.Name].(*Counter).points[time.Now()] = value
+	c.Maintain()
 	return nil
 }
 
 //Get - Fetch the metric value
 func (c *Counter) Get(tel *Telemetry) float64 {
+	c.Maintain()
 	return tel.registry[c.Name].(*Counter).value
 }
 
