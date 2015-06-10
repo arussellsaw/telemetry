@@ -28,7 +28,9 @@ func NewTotal(tel *Telemetry, name string, duration time.Duration) Total {
 func (t *Total) Add(tel *Telemetry, value float64) error {
 	t.lock.Lock()
 	defer t.lock.Unlock()
-	t.value = t.value + value
+	tel.lock.Lock()
+	defer tel.lock.Unlock()
+	tel.registry[t.Name].(*Total).value = t.value + value
 	return nil
 }
 

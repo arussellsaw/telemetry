@@ -64,3 +64,22 @@ func TestAverage(t *testing.T) {
 		})
 	})
 }
+
+//Currents
+
+func TestCurrent(t *testing.T) {
+	Convey("Test Currents", t, func() {
+		Convey("New Currents should exist and be zero value", func() {
+			tel := telemetry.New((100 * time.Millisecond))
+			cur := telemetry.NewCurrent(tel, "test.cur", (60 * time.Second))
+			So(cur.Get(tel), ShouldEqual, 0)
+		})
+		Convey("Current's value should be the latest one passed to it", func() {
+			tel := telemetry.New((100 * time.Millisecond))
+			cur := telemetry.NewCurrent(tel, "test.cur", (60 * time.Second))
+			cur.Add(tel, float64(10))
+			cur.Add(tel, float64(3))
+			So(cur.Get(tel), ShouldEqual, 3)
+		})
+	})
+}
