@@ -1,42 +1,50 @@
 package telemetry
 
 import (
-	"fmt"
 	"sync"
 	"time"
 )
 
-//Current current value metric
+//Current - a metric containing the value most recently passed to it
 type Current struct {
-	metric map[string]float32
-	lock   sync.Mutex
+	Name  string
+	value float64
+	lock  sync.Mutex
 }
 
-//New new current metric
-func (c *Current) New(name string, _ time.Duration) error {
+//NewCurrent - Create a new current metric and add it to the telemetry register
+func NewCurrent(tel *Telemetry, name string, _ time.Duration) *Current {
+	current := Current{
+		Name:  name,
+		value: float64(0),
+	}
+	tel.lock.Lock()
+	defer tel.lock.Unlock()
+	tel.registry[name] = &current
+	return &current
+}
+
+//Add - set the value of the Current metric
+func (c *Current) Add(tel *Telemetry, value float64) error {
 	c.lock.Lock()
 	defer c.lock.Unlock()
-	c.metric[name] = 0
+	tel.lock.Lock()
+	defer tel.lock.Unlock()
+	tel.registry[c.Name].(*Current).value = value
 	return nil
 }
 
-//Add add value to existing metric
-func (c *Current) Add(name string, value float32) {
-	c.lock.Lock()
-	defer c.lock.Unlock()
-	c.metric[name] = value
+//Get - return the value of the metric
+func (c *Current) Get(tel *Telemetry) float64 {
+	return tel.registry[c.Name].(*Current).value
 }
 
-//Get return total
-func (c *Current) Get(name string) string {
-	return fmt.Sprintf("%s %v", name, c.metric[name])
+//GetName - return the human readable name of the metric
+func (c *Current) GetName() string {
+	return c.Name
 }
 
-//GetAll get all totals
-func (c *Current) GetAll() map[string]float32 {
-	output := make(map[string]float32)
-	for key, value := range c.metric {
-		output[key] = value
-	}
-	return output
+//Maintain - stub method for interface, metric is so simple that it isn't needed
+func (c *Current) Maintain() {
+	return
 }

@@ -1,57 +1,69 @@
 package telemetry
 
 import (
-	"fmt"
 	"sync"
 	"time"
 )
 
-//Counter metric type for total over a time.Duration
+//Counter - A running total of values provided to it, over a time period
 type Counter struct {
-	metric map[string]metric
-	lock   sync.Mutex
+	Name     string
+	value    float64
+	points   map[time.Time]float64
+	duration time.Duration
+	lock     sync.Mutex
 }
 
-//New create new counter metric
-func (c *Counter) New(name string, duration time.Duration) error {
+//NewCounter - Create new Counter metric with a duration for keeping points
+func NewCounter(tel *Telemetry, name string, duration time.Duration) *Counter {
+	count := Counter{
+		Name:     name,
+		value:    0,
+		points:   make(map[time.Time]float64),
+		duration: duration,
+	}
+	tel.lock.Lock()
+	defer tel.lock.Unlock()
+	tel.registry[name] = &count
+	return &count
+}
+
+//Add - Add a value to the metric
+func (c *Counter) Add(tel *Telemetry, value float64) error {
+	tel.lock.Lock()
 	c.lock.Lock()
-	defer c.lock.Unlock()
-	counter := metric{duration: duration}
-	c.metric[name] = counter
+	tel.registry[c.Name].(*Counter).points[time.Now()] = value
+	tel.lock.Unlock()
+	c.lock.Unlock()
+	c.Maintain()
 	return nil
 }
 
-//Add add value to counter
-func (c *Counter) Add(name string, value float32) {
+//Get - Fetch the metric value
+func (c *Counter) Get(tel *Telemetry) float64 {
+	c.Maintain()
+	return tel.registry[c.Name].(*Counter).value
+}
+
+//GetName - get the name of the metric
+func (c *Counter) GetName() string {
+	return c.Name
+}
+
+//Maintain - maintain metric value
+func (c *Counter) Maintain() {
 	c.lock.Lock()
 	defer c.lock.Unlock()
-	point := point{value: value, timestamp: time.Now()}
-	//this ugly section is because we cannot assign to properties of a
-	//struct within a map, so have to create the entire struct again
-	counter := cull(c.metric[name].points, c.metric[name].duration)
-	points := metric{append(counter, point), c.metric[name].duration}
-
-	c.metric[name] = points
-}
-
-//Get get counter value
-func (c *Counter) Get(name string) string {
-	var sum float32
-	for i := range c.metric[name].points {
-		sum = sum + c.metric[name].points[i].value
-	}
-	return fmt.Sprintf("%s %v", name, sum)
-}
-
-//GetAll return all counters
-func (c *Counter) GetAll() map[string]float32 {
-	output := make(map[string]float32)
-	for key, value := range c.metric {
-		var sum float32
-		for i := range value.points {
-			sum = sum + value.points[i].value
+	points := make(map[time.Time]float64)
+	for pointTime, point := range c.points {
+		if time.Since(pointTime) < c.duration {
+			points[pointTime] = point
 		}
-		output[key] = sum
 	}
-	return output
+	c.points = points
+	var count float64
+	for _, point := range c.points {
+		count = count + point
+	}
+	c.value = count
 }

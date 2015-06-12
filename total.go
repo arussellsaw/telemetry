@@ -1,42 +1,50 @@
 package telemetry
 
 import (
-	"fmt"
 	"sync"
 	"time"
 )
 
 //Total a total sum of a metric over the lifetime of the process
 type Total struct {
-	metric map[string]float32
-	lock   sync.Mutex
+	Name  string
+	value float64
+	lock  sync.Mutex
 }
 
-//New new total sum metric
-func (t *Total) New(name string, _ time.Duration) error {
+//NewTotal - create new total metric type, add it to telemetry register
+func NewTotal(tel *Telemetry, name string, duration time.Duration) *Total {
+	total := Total{
+		Name:  name,
+		value: 0,
+	}
+	tel.lock.Lock()
+	defer tel.lock.Unlock()
+	tel.registry[name] = &total
+	return &total
+}
+
+//Add - add value to total
+func (t *Total) Add(tel *Telemetry, value float64) error {
 	t.lock.Lock()
 	defer t.lock.Unlock()
-	t.metric[name] = 0
+	tel.lock.Lock()
+	defer tel.lock.Unlock()
+	tel.registry[t.Name].(*Total).value += value
 	return nil
 }
 
-//Add add value to existing metric
-func (t *Total) Add(name string, value float32) {
-	t.lock.Lock()
-	defer t.lock.Unlock()
-	t.metric[name] = (t.metric[name] + value)
+//Get - get current value
+func (t *Total) Get(tel *Telemetry) float64 {
+	return tel.registry[t.Name].(*Total).value
 }
 
-//Get return total
-func (t *Total) Get(name string) string {
-	return fmt.Sprintf("%s %v", name, t.metric[name])
+//GetName - get metric name
+func (t *Total) GetName() string {
+	return t.Name
 }
 
-//GetAll get all totals
-func (t *Total) GetAll() map[string]float32 {
-	output := make(map[string]float32)
-	for key, value := range t.metric {
-		output[key] = value
-	}
-	return output
+//Maintain - stub method for interface, does nothing
+func (t *Total) Maintain() {
+	return
 }
