@@ -15,7 +15,7 @@ type Counter struct {
 }
 
 //NewCounter - Create new Counter metric with a duration for keeping points
-func NewCounter(tel *Telemetry, name string, duration time.Duration) Counter {
+func NewCounter(tel *Telemetry, name string, duration time.Duration) *Counter {
 	count := Counter{
 		Name:     name,
 		value:    0,
@@ -25,7 +25,7 @@ func NewCounter(tel *Telemetry, name string, duration time.Duration) Counter {
 	tel.lock.Lock()
 	defer tel.lock.Unlock()
 	tel.registry[name] = &count
-	return count
+	return &count
 }
 
 //Add - Add a value to the metric

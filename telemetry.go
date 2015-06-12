@@ -1,18 +1,20 @@
 package telemetry
 
 import (
+	"fmt"
 	"sync"
 	"time"
 )
 
 //Telemetry container struct
 type Telemetry struct {
-	registry map[string]metricInterface
+	registry map[string]Metric
+	prefix   string
 	lock     sync.Mutex
 	duration time.Duration
 }
 
-type metricInterface interface {
+type Metric interface {
 	GetName() string
 	Add(*Telemetry, float64) error
 	Get(*Telemetry) float64
@@ -20,9 +22,10 @@ type metricInterface interface {
 }
 
 //New create new telemetry struct
-func New(duration time.Duration) *Telemetry {
+func New(prefix string, duration time.Duration) *Telemetry {
 	tel := Telemetry{
-		registry: make(map[string]metricInterface),
+		registry: make(map[string]Metric),
+		prefix:   prefix,
 		duration: duration,
 	}
 	go tel.maintainance()
@@ -33,7 +36,7 @@ func New(duration time.Duration) *Telemetry {
 func (t *Telemetry) GetAll() map[string]float64 {
 	metrics := make(map[string]float64)
 	for _, metric := range t.registry {
-		metrics[metric.GetName()] = metric.Get(t)
+		metrics[fmt.Sprintf("%s%s", t.prefix, metric.GetName())] = metric.Get(t)
 	}
 	return metrics
 }

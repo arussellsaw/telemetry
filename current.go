@@ -13,7 +13,7 @@ type Current struct {
 }
 
 //NewCurrent - Create a new current metric and add it to the telemetry register
-func NewCurrent(tel *Telemetry, name string, _ time.Duration) Current {
+func NewCurrent(tel *Telemetry, name string, _ time.Duration) *Current {
 	current := Current{
 		Name:  name,
 		value: float64(0),
@@ -21,7 +21,7 @@ func NewCurrent(tel *Telemetry, name string, _ time.Duration) Current {
 	tel.lock.Lock()
 	defer tel.lock.Unlock()
 	tel.registry[name] = &current
-	return current
+	return &current
 }
 
 //Add - set the value of the Current metric

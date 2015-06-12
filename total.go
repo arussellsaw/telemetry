@@ -13,7 +13,7 @@ type Total struct {
 }
 
 //NewTotal - create new total metric type, add it to telemetry register
-func NewTotal(tel *Telemetry, name string, duration time.Duration) Total {
+func NewTotal(tel *Telemetry, name string, duration time.Duration) *Total {
 	total := Total{
 		Name:  name,
 		value: 0,
@@ -21,7 +21,7 @@ func NewTotal(tel *Telemetry, name string, duration time.Duration) Total {
 	tel.lock.Lock()
 	defer tel.lock.Unlock()
 	tel.registry[name] = &total
-	return total
+	return &total
 }
 
 //Add - add value to total
@@ -30,13 +30,13 @@ func (t *Total) Add(tel *Telemetry, value float64) error {
 	defer t.lock.Unlock()
 	tel.lock.Lock()
 	defer tel.lock.Unlock()
-	tel.registry[t.Name].(*Total).value = t.value + value
+	tel.registry[t.Name].(*Total).value += value
 	return nil
 }
 
 //Get - get current value
 func (t *Total) Get(tel *Telemetry) float64 {
-	return t.value
+	return tel.registry[t.Name].(*Total).value
 }
 
 //GetName - get metric name

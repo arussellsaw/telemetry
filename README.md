@@ -12,86 +12,35 @@ package main
 
 import(
     "github.com/arussellsaw/telemetry"
-    "github.com/arussellsaw/telemetry/builtin"
+    "github.com/arussellsaw/telemetry/reporters"
     "time"
     "net/http"
     )
 
 func main() {
-    // Initialize telemetry, return http.Handler for metrics, with a 5 second point cull schedule
-    var telemetry, handler = Telemetry.New((5 * time.Second))
-    http.HandleFunc("/telemetry", handler.ServeHTTP)
-    /*
-    The time.Duration() parameter is used to cull metrics older than the duration
-    this provides the ability to provide x per-minute stats, cull is run on append
-    methods, also a scheduled cull is run every 5s (configureable in future)
-    */
-    var runtimeMetrics = builtin.Runtime{telemetry, "example"}
+    //New telemetry object (prefix, maintainance schedule)
+    tel := telemetry.New("test", 5 * time.Second)
+    avg := telemetry.NewAverage(tel, "average", 60 * time.Second)
 
-    telemetry.Average.New("example.avg", (60 * time.Second))
-    telemetry.Counter.New("example.counter", (60 * time.Second))
-    telemetry.Total.New("example.total", 0 * time.Second) //duration parameter is useless, but is needed to conform to interface
+    //Register influxdb reporter
+    influx := reporters.InfluxReporter{
+        Host: "192.168.1.100:8086",
+        Interval: 60 * time.Second,
+        Tel: tel,
+        Database: "telemetry"
+    }
+    influx.Report() //trigger reporting loop
 
+    //Create http handler for json metrics
+    telemetryHandler := reporters.TelemetryHandler{
+        Tel: tel,
+    }
+    http.HandleFunc("/metrics", telemetryHandler.ServeHTTP)
+    http.ListenAndServe(":8080", nil)
 
-    telemetry.Average.Add("example.avg", float32(10))
-    telemetry.Average.Add("example.avg", float32(20))
-    telemetry.Average.Add("example.avg", float32(30))
-
-    telemetry.Counter.Add("example.counter", float32(10))
-    telemetry.Counter.Add("example.counter", float32(20))
-    telemetry.Counter.Add("example.counter", float32(30))
-
-    telemetry.Total.Add("example.total", float32(10))
-    telemetry.Total.Add("example.total", float32(20))
-    telemetry.Total.Add("example.total", float32(30))
+    start = time.Now()
+    somethingYouWantToTime()
+    avg.Add(tel, float64(time.Since(start).Nanoseconds()))
 }
 
-```
-
-to view metrics:
-
-`curl http://localhost/telemetry`  
-
-
-output:  
-
-
-```
-{
-    "averages" {
-        "example.avg": 20,
-        "example.runtime.mem.heap.alloc": 107192,
-        "example.runtime.mem.heap.used": 393216
-    },
-    "counters" {
-        "example.counter": 60
-    },
-    "currents": {
-        "example.runtime.gc.count": 4
-    }
-    "totals" {
-        "example.total": 60
-    }
-}
-```
-
-the same command 61s later
-
-```
-{
-    "averages" {
-        "example.avg": 0,
-        "example.runtime.mem.heap.alloc": 107192,
-        "example.runtime.mem.heap.used": 393216
-    },
-    "counters" {
-        "example.counter": 0
-    },
-    "currents": {
-        "example.runtime.gc.count": 4
-    }
-    "totals" {
-        "example.total": 60
-    }
-}
 ```

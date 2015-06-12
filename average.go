@@ -15,7 +15,7 @@ type Average struct {
 }
 
 //NewAverage - Create new Average metric with a duration for averaging points over
-func NewAverage(tel *Telemetry, name string, duration time.Duration) Average {
+func NewAverage(tel *Telemetry, name string, duration time.Duration) *Average {
 	avg := Average{
 		Name:     name,
 		value:    0,
@@ -25,7 +25,7 @@ func NewAverage(tel *Telemetry, name string, duration time.Duration) Average {
 	tel.lock.Lock()
 	defer tel.lock.Unlock()
 	tel.registry[name] = &avg
-	return avg
+	return &avg
 }
 
 //Add - Add a value to the metric
