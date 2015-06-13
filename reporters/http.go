@@ -13,9 +13,17 @@ type TelemetryHandler struct {
 }
 
 func (t TelemetryHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+
+	if len(t.Tel.GetAll()) == 0 {
+		w.WriteHeader(204)
+		return
+	}
+
 	output, err := json.MarshalIndent(t.Tel.GetAll(), "", " ")
 	if err != nil {
-		w.Write([]byte("failed to encode results"))
+		w.WriteHeader(500)
+		w.Write([]byte("{\"error\": \"" + err.Error() + "\"}"))
 	}
+
 	w.Write(output)
 }
